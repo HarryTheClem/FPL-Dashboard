@@ -12,7 +12,7 @@ navbar = dbc.NavbarSimple(
         dbc.NavItem(dbc.NavLink("Home", href="/")),
         # dbc.NavItem(dbc.NavLink("Data upload", href="/data_upload")),
     ],
-    brand="Multipage Dash App",
+    brand="FPL Analysis",
     color="dark",
     dark=True,
     className="mb-2",
@@ -23,7 +23,7 @@ app.layout = dbc.Container([
         navbar,
         dash.page_container
     ])
-])
+], fluid = True)
 
 
 
