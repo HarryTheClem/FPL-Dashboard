@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import dash
-from dash import html, dcc, callback, Input, Output
+from dash import html, dcc, callback, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
@@ -20,10 +20,18 @@ layout = dbc.Container([
                  dcc.Dropdown(['Goalkeeper', 'Defender', "Midfielder", 'Forward'], 'Goalkeeper', id = 'position-dropdown'),
                  html.Br(),
                  html.Label(["Metric:"], style = {"font-weight": "bold", "text-align": "center"}),
-                 dcc.Dropdown(['total_points', 'value'], 'total_points', id = 'metric-dropdown')], width = 2),
+                 dcc.Dropdown(['total_points', 'value'], 'total_points', id = 'metric-dropdown')], width = 3),
 
-        dbc.Col(dcc.Graph(id = 'top-players-graph'), width = 6)
-    ])
+        dbc.Col(dcc.Graph(id = 'top-players-graph'), width = 7),
+    ]),
+
+    dbc.Row([
+        dbc.Col(dash_table.DataTable(id = 'top-players-table'), width = 10)
+    ]),
+
+    html.Br(),
+    html.Br()
+
 ], fluid = True)
 
 
@@ -45,7 +53,24 @@ def plot_top_players(position, metric):
     return fig
 
 
+@callback(
+    Output("top-players-table", "data"),
+    Output("top-players-table", "columns"),
+    Input("position-dropdown", "value"),
+    Input("metric-dropdown", "value")
+)
+def create_top_table(position, metric):
+    # Set position using dropdonw
+    position_df = df[df["position"] == position]
+    # Use metric to sort data and get same number of players for tabke
+    metric_df = position_df.sort_values(metric, ascending = False).head(10)
+    # Keep only relevant columns
+    final_df = metric_df.loc[:, ["second_name", "team", "selected_by_percent", "now_cost", "minutes", "total_points", "value"]]
 
+    data = final_df.to_dict('records')
+    cols = [{"name": i, "id": i} for i in final_df.columns]
 
+    return data, cols
+    
 
 
