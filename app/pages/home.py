@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 df = pd.read_csv("./players_data.csv")
-
+detailed_df = pd.read_csv("./comprehensive_players_data.csv")
 
 
 dash.register_page(__name__, path = "/")
@@ -16,7 +16,7 @@ layout = dbc.Container([
         html.H2("Top player statistics"),
         dbc.Col([html.Br(),
                  html.Br(),
-                 html.Label(["Position:"], style= {"font-weight": "bold", "text-align": "center"}),
+                 html.Label(["Position:"], style = {"font-weight": "bold", "text-align": "center"}),
                  dcc.Dropdown(['Goalkeeper', 'Defender', "Midfielder", 'Forward'], 'Goalkeeper', id = 'position-dropdown'),
                  html.Br(),
                  html.Label(["Metric:"], style = {"font-weight": "bold", "text-align": "center"}),
@@ -30,7 +30,28 @@ layout = dbc.Container([
     ]),
 
     html.Br(),
-    html.Br()
+    html.Br(),
+    html.Hr(),
+    html.Br(),
+    html.Br(),
+
+    dbc.Row([
+        html.H2("Player feature analysis"),
+        dbc.Col([
+            html.Br(),
+            html.Label(["First metric"], style = {"font-weight": "bold", "text-align": "center"}),
+            dcc.Dropdown(detailed_df.columns[4:], "now_cost", id = "x-metric-dropdown"),
+            html.Br(),
+            html.Label(["Second metric"], style = {"font-weight": "bold", "text-align": "center"}),
+            dcc.Dropdown(detailed_df.columns[4:], "now_cost", id = "y-metric-dropdown")
+        ], width = 3),
+
+        dbc.Col([
+            dcc.Graph(id = 'metric-analysis-graph')
+        ], width = 7)
+    ])
+
+
 
 ], fluid = True)
 
@@ -72,5 +93,16 @@ def create_top_table(position, metric):
 
     return data, cols
     
+
+@callback(
+    Output("metric-analysis-graph", "figure"),
+    Input("x-metric-dropdown", "value"),
+    Input("y-metric-dropdown", "value")
+)
+def plot_scatter_metrics(metric_x, metric_y):
+
+    fig = px.scatter(detailed_df, x = metric_x, y = metric_y, hover_name = "web_name")
+
+    return fig
 
 
